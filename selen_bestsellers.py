@@ -154,6 +154,7 @@ class Clicker_simple(object):
     def banner_click(self, adv):
         link_ = self.driver.find_element_by_name(adv)
         link_.click()
+        time.sleep(10)
 
         # print(self.counter, "BANNER CLICK - {}".format(adv))
         # adv_page_clicks = random.randint(0, 6)
@@ -207,6 +208,7 @@ class Clicker_simple(object):
             if banner <= len(self.banner_list) - 1:
                 self.banner_click(self.banner_list[banner])
                 self.Log("BANNER click {}".format(self.banner_list[banner]))
+                print(self.counter, "BANNER click {}".format(self.banner_list[banner]))
 
             self.counter += 1
             self.random_link_click(delay)
@@ -289,7 +291,7 @@ if __name__ == '__main__':
         elif "-ban" in sysarg:
             ban = int(sysarg.replace("-ban=", ""))
         elif "-headless" in sysarg:
-            headless="n"
+            headless="y"
     if ip == "":
         ip = "дом_dsh"
     if Q == 0:

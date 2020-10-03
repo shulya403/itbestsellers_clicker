@@ -78,11 +78,20 @@ class Clicker_simple(object):
 
     ]
 
-    def __init__(self, counter=0, logfile="log.xlsx", ip="мой домашний"):
+    def __init__(self,
+                 site,
+                 counter=0,
+                 logfile="log.xlsx",
+                 ip="мой домашний",
+                 headless="y"):
         self.options = webdriver.ChromeOptions()
-        # self.options.add_argument('--headless')
+        if headless == "y":
+            self.options.add_argument('--headless')
+
         self.options.add_argument("--window-size=1920,1080")
         # self.options.add_argument('--proxy-server=%s' % proxy_[i])
+
+
 
         try:
             self.logfile = logfile
@@ -99,53 +108,48 @@ class Clicker_simple(object):
         self.counter = counter
         self.ip = ip
 
-    def click_random_2(self, delay):
+        self.Sites = {
+            "https://www.itbestsellers.ru/": {
+                "banner_list": [
+                    "itbs_top_adv",
+                    "itbs_right_adv"
+                ],
+                "home_page": "HOME itbestsellers.ru",
+                "exclude": [
+                    "Номера",
+                    "Форумы",
+                    "Об издании",
+                    "студия iMake",
+                    "RSS",
+                    "Подписка на рассылки",
+                    "Авторизация",
+                    "bestsellers@itbestsellers.ru",
+                    "",
+                    "Создание сайта",
+                    "Подписка на издание"
+                    ]
+        },
+            "https://www.bytemag.ru/": {
+                'banner_list': ['byte_left_adv'],
+                'home_page': "HOME bytemag.ru",
+                "exclude": [
+                    "byte@bytemag.ru",
+                    "Корпоративная подписка",
+                    "Поместить в блог",
+                    "",
 
 
-        try:
-            self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.options)
-            self.driver.get("https://www.itbestsellers.ru/")
-        except Exception:
-            print("не вышло")
-            #self.driver.close()
-            return self.counter
+                ]
+            }
+        }
 
-        for i in range(random.randint(1, 6)):
-            banner = random.randint(1, 100)
-            if banner == 2:
-                link_ = self.driver.find_element_by_name("itbs_top_adv")
-                link_.click()
-                self.Log("BANNER CLICK - itbs_top_adv")
-                self.counter += 1
-            else:
-                try:
-                    list_articles_links = self.driver.find_elements_by_tag_name('a')
-
-                    if list_articles_links:
-                    #     for i in list_articles_links:
-                    #         print(list_articles_links.index(i), i.text)
-
-                        link_ = random.choice(list_articles_links)
-
-                        page_ = link_.text
-                        if link_ and (page_ not in self.exclude):
-                            print(self.counter, page_)
-                            link_.click()
-                            self.Log(page_)
-
-                            self.counter += 1
-                            time.sleep(random.randint(3, delay))
-                    else:
-                            print('ничего не нашел')
-
-                except IndexError:
-                    print('ничего не нашел')
-
-            self.driver.get("https://www.itbestsellers.ru/")
-
-        self.driver.close()
-
-        return self.counter
+        self.site = site
+        if "exclude" in self.Sites[self.site]:
+            self.site_exclude = self.Sites[self.site]["exclude"]
+        else:
+            self.site_exclude = []
+        self.banner_list = self.Sites[self.site]["banner_list"]
+        self.site_home = self.Sites[self.site]["home_page"]
 
     def banner_click(self, adv):
         link_ = self.driver.find_element_by_name(adv)
@@ -177,7 +181,7 @@ class Clicker_simple(object):
             link_ = random.choice(list_links)
             try:
                 page_ = link_.text
-                if page_ not in self.exclude:
+                if page_ not in self.site_exclude:
                     link_.click()
                     print(self.counter, page_)
                     self.Log(page_)
@@ -192,29 +196,19 @@ class Clicker_simple(object):
                        q=6, #макс число просмотров пользователем
                        ban=100):
 
-
-
-        if page == "https://www.itbestsellers.ru/":
+        if page == self.site:
             self.counter += 1
-            self.Log("HOME itbestsellers.ru")
-            print(self.counter, "HOME itbestsellers.ru")
+            self.Log(self.site_home)
+            print(self.counter, self.site_home)
 
         for i in range(random.randint(1, q)):
 
-            banner = random.randint(1, ban)
-
-            if banner == 2:
-
-                self.banner_click("itbs_top_adv")
-                self.counter += 1
-
-            elif banner == 3:
-
-                self.banner_click("itbs_right_adv")
-                self.counter += 1
+            banner = random.randint(0, ban)
+            if banner <= len(self.banner_list) - 1:
+                self.banner_click(self.banner_list[banner])
+                self.Log("BANNER click {}".format(self.banner_list[banner]))
 
             self.counter += 1
-
             self.random_link_click(delay)
 
         return self.counter
@@ -241,28 +235,32 @@ class Clicker_simple(object):
 
 def delay_time_rel():
     hur = int(dt.now().hour)
+    if dt.now().weekday() >= 5:
+        day = 0.5
+    else:
+        day = 1
     if 0 <= hur < 3:
         return 1
     elif 3 <= hur < 6:
         return 0.5
     elif 6 <= hur < 7:
-        return 2
+        return 2*day
     elif 7 <= hur < 9:
-        return 4
+        return 4*day
     elif 9 <= hur < 11:
-        return 12
+        return 12*day
     elif 11 <= hur < 13:
-        return 16
+        return 16*day
     elif 13 <= hur < 17:
-        return 20
+        return 20*day
     elif 17 <= hur < 19:
-        return 18
+        return 18*day
     elif 19 <= hur < 21:
-        return 12
+        return 12*day
     elif 21 <= hur <= 22:
-        return 6
+        return 6*day
     else:
-        return 3
+        return 3*day
 
 
 if __name__ == '__main__':
@@ -271,9 +269,15 @@ if __name__ == '__main__':
     random.seed()
 
     #print(sys.argv)
-    ip, Q, delay, deep, ban = "", 0, 0, 0, 0
+    site, debug, ip, Q, delay, deep, ban = "https://www.itbestsellers.ru/", "", "", 0, 0, 0, 0
+    headless = "n"
     for sysarg in sys.argv[1:]:
-
+        if "-site" in sysarg:
+            st = str(sysarg.replace("-site=", ""))
+            if "by" in st:
+                site = "https://www.bytemag.ru/"
+        if "-debug" in sysarg:
+            debug = "n"
         if "-ip" in sysarg:
             ip = str(sysarg.replace("-ip=", ""))
         elif "-q" in sysarg:
@@ -284,10 +288,12 @@ if __name__ == '__main__':
             deep = int(sysarg.replace("-deep=", ""))
         elif "-ban" in sysarg:
             ban = int(sysarg.replace("-ban=", ""))
+        elif "-headless" in sysarg:
+            headless="n"
     if ip == "":
-        ip = input("ip>")
+        ip = "дом_dsh"
     if Q == 0:
-        Q = 300
+        Q = 500
     if delay == 0:
         delay = 20
     if deep == 0:
@@ -295,9 +301,13 @@ if __name__ == '__main__':
     if ban == 0:
         ban = 100
 
-    go = Clicker_simple(counter_, logfile="log.xlsx", ip=ip)
-    debug = input("Работа?")
-    if debug.lower() == "n":
+    go = Clicker_simple(site=site,
+                        counter=counter_,
+                        logfile="log.xlsx",
+                        ip=ip,
+                        headless=headless)
+
+    if debug:
         lag = 1
     else:
         lag = 60
@@ -309,13 +319,13 @@ if __name__ == '__main__':
 
         try:
             go.driver = webdriver.Chrome(ChromeDriverManager().install(), options=go.options)
-            go.driver.get("https://www.itbestsellers.ru/")
+            go.driver.get(go.site)
         except Exception:
             print("не вышло")
             #self.driver.close()
         print(i, delay_)
 
-        counter_ = go.click_random_3(page="https://www.itbestsellers.ru/", delay=delay, ban=ban)
+        counter_ = go.click_random_3(page=site, delay=delay, ban=ban)
         try:
             go.driver.quit()
         except Exception:

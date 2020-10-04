@@ -152,24 +152,29 @@ class Clicker_simple(object):
         self.site_home = self.Sites[self.site]["home_page"]
 
     def banner_click(self, adv):
+
         link_ = self.driver.find_element_by_name(adv)
         link_.click()
-        time.sleep(10)
 
-        # print(self.counter, "BANNER CLICK - {}".format(adv))
-        # adv_page_clicks = random.randint(0, 6)
-        # if adv_page_clicks < 4:
-        #     adv_page_clicks = 0
-        # elif adv_page_clicks < 6:
-        #     adv_page_clicks = 1
-        # else:
-        #     adv_page_clicks = 2
-        #
-        # for i in range(adv_page_clicks):
-        #     link_adv = link_.find_element_by_tag_name('a')
+        if len(self.driver.window_handles) > 0:
+            first_win = self.driver.window_handles[0]
+            new_win = self.driver.window_handles[1]
+            self.driver.switch_to.window(new_win)
+            wait = WebDriverWait(self.driver, 5). \
+                until(EC.presence_of_element_located((By.TAG_NAME, 'a')))
+
+            adv_page_clicks = (int(random.expovariate(1.1)))
+
+            for i in range(adv_page_clicks):
+                try:
+                    link_adv = self.driver.find_element_by_tag_name('a')
+                    link_adv.click()
+                except Exception:
+                    pass
+            self.driver.switch_to.window(first_win)
+
 
         #    self.random_link_click(random.randint(1, 7))
-
 
     def random_link_click(self, delay):
 
@@ -189,8 +194,6 @@ class Clicker_simple(object):
             except:
                 print("Плохой линк")
 
-
-
     def click_random_3(self,
                        delay,
                        page="https://www.itbestsellers.ru/",
@@ -202,7 +205,7 @@ class Clicker_simple(object):
             self.Log(self.site_home)
             print(self.counter, self.site_home)
 
-        for i in range(random.randint(1, q)):
+        for i in range(int(random.expovariate(0.3))):
 
             banner = random.randint(0, ban)
             if banner <= len(self.banner_list) - 1:

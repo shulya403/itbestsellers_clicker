@@ -156,7 +156,7 @@ class Clicker_simple(object):
         link_ = self.driver.find_element_by_name(adv)
         link_.click()
 
-        if len(self.driver.window_handles) > 0:
+        if len(self.driver.window_handles) > 1:
             first_win = self.driver.window_handles[0]
             new_win = self.driver.window_handles[1]
             self.driver.switch_to.window(new_win)
